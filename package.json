@@ -1,0 +1,31 @@
+{
+  "name": "federico",
+  "version": "0.0.1",
+  "description": "Frontend Architecture Boilerplate",
+  "main": "index.js",
+  "scripts": {
+    "prestart": "npm install",
+    "build": "npm run prestart && gulp all",
+    "start": "gulp --dev",
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/roccojanse/federico.git"
+  },
+  "keywords": [
+    "Frontend",
+    "Architecture",
+    "Boilerplate"
+  ],
+  "author": "Rocco Janse, roccojanse@outlook.com",
+  "license": "MIT",
+  "bugs": {
+    "url": "https://github.com/roccojanse/federico/issues"
+  },
+  "homepage": "https://github.com/roccojanse/federico#readme",
+
+  "bin": {
+    "federico": "./bin/federico.js"
+  }
+}
