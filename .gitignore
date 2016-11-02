@@ -1,3 +1,3 @@
-./node_modules
-./Frontend/components
-./Frontend/elements
+node_modules
+Frontend/components
+Frontend/elements
