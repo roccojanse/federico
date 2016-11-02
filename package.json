@@ -1,6 +1,6 @@
 {
   "name": "federico",
-  "version": "0.0.3",
+  "version": "0.0.4",
   "description": "Frontend Architecture Boilerplate",
   "main": "index.js",
   "scripts": {
@@ -24,7 +24,6 @@
     "url": "https://github.com/roccojanse/federico/issues"
   },
   "homepage": "https://github.com/roccojanse/federico#readme",
-
   "bin": {
     "federico": "./bin/federico.js"
   }
