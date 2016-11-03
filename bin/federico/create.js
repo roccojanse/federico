@@ -7,7 +7,7 @@ var config = require('./config'),
  */
 module.exports = {
 
-    extensions: ['.html', '.scss', '.js'],
+    extensions: ['.html', '.scss', '.js', '.gspec'],
 
     /**
      * determines type of file to create
@@ -33,9 +33,10 @@ module.exports = {
      */
     createComponent: function(name, path) {
         if (name !== null) {
-            var filePath = path || config.paths.components;
+            var filePath = (path || config.paths.components) + name + '/';
             this.extensions.forEach(function(ext, i) {
                 
+                // add underscore for sass files
                 if (ext === '.scss') {
                     fileName = '_' + name;
                 } else {
