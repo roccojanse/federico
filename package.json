@@ -1,6 +1,6 @@
 {
   "name": "federico",
-  "version": "0.0.7",
+  "version": "0.0.8",
   "description": "Frontend Architecture Boilerplate",
   "main": "index.js",
   "scripts": {
