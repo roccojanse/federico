@@ -17,44 +17,56 @@ module.exports = {
      * @returns void
      */
     type: function(type, name, path) {
-        if (type === 'component') {
-            this.createComponent(name, path);
-        }
-        if (type === 'element') {
-            this.createElement(name, path);
-        }
-    },
-
-    /**
-     * creates components
-     * @param {string} name Component name
-     * @param {string} path [Path to create objecct in]
-     * @returns void
-     */
-    createComponent: function(name, path) {
+        var filePath;
         if (name !== null) {
-            var filePath = (path || config.paths.components) + name + '/';
-            this.extensions.forEach(function(ext, i) {
-                
-                // add underscore for sass files
-                if (ext === '.scss') {
-                    fileName = '_' + name;
-                } else {
-                    fileName = name;
-                }
+            
+            if (type === 'component') {
+                filePath = (path || config.paths.components) + name + '/';
+            }
+            if (type === 'element') {
+                filePath = (path || config.paths.elements) + name + '/';
+            }
 
-                fs.outputFile(filePath + fileName + ext, '/**\n * ' + name + '\n *\n */', function(err) {
-                    if (err) { 
-                        this.handleError(err); 
-                    }
-                    console.log(filePath + fileName + ext + ' created.');
-                });
-            });
-            console.log('CREATE COMPONENT "'+ name +'".');
+            this.create(type, name, filePath);
 
         } else {
             this.handleError('\n\nNo component name found.\n\nUsage: federico create component <name>');
         }
+    },
+
+    /**
+     * createss components or elements
+     * @param {string} type Type of object to create
+     * @param {string} name Component or element name
+     * @param {string} path [Path to create objecct in]
+     * @returns void
+     */
+    create: function(type, name, path) {
+        var extLength = this.extensions.length - 1,
+            count = 0,
+            elName = name;
+
+        this.extensions.forEach(function(ext, i) {
+            
+            // add underscore for sass files
+            if (ext === '.scss') {
+                fileName = '_' + name;
+            } else {
+                fileName = name;
+            }
+
+            fs.outputFile(path + fileName + ext, '/**\n * ' + name + '\n *\n */', function(err) {
+                if (err) { 
+                    this.handleError(err); 
+                }
+
+                count++;
+
+                if (extLength === count) {
+                    console.log(type + ' ' + elName + ' created.');
+                }
+            });
+        });
     },
 
     /**
