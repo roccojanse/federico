@@ -25,7 +25,7 @@
   },
   "homepage": "https://github.com/roccojanse/federico#readme",
   "bin": {
-    "federico": "./bin/federico/federico.js"
+    "federico": "./bin/federico.js"
   },
   "dependencies": {
     "fs-extra": "^1.0.0",
