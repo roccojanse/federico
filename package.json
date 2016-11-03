@@ -3,12 +3,6 @@
     "version": "0.1.5",
     "description": "Frontend Architecture Boilerplate",
     "main": "index.js",
-    "scripts": {
-        "prestart": "npm install",
-        "build": "npm run prestart && gulp all",
-        "start": "gulp --dev",
-        "test": "echo \"Error: no test specified\" && exit 1"
-    },
     "repository": {
         "type": "git",
         "url": "git+https://github.com/roccojanse/federico.git"
