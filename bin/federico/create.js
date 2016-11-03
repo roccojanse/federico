@@ -42,7 +42,7 @@ module.exports = {
                     fileName = name;
                 }
 
-                fs.outputFile(filePath + fileName + ext, '/**\n * name\n *\n */', function(err) {
+                fs.outputFile(filePath + fileName + ext, '/**\n * ' + name + '\n *\n */', function(err) {
                     if (err) { 
                         this.handleError(err); 
                     }
