@@ -25,6 +25,9 @@ var Files = module.exports = {
      */
     createFiles: function(type, name, options) {
 
+        console.log('DIR:', __dirname);
+
+
         var filesArray = [],
             filePath = config.paths[type] || null;
 
