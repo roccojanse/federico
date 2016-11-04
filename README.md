@@ -1,4 +1,5 @@
 [![GitHub release](https://img.shields.io/github/release/roccojanse/federico.svg)](https://github.com/roccojanse/federico)
+[![GitHub version](https://badge.fury.io/gh/roccojanse%2Ffederico.svg)](https://badge.fury.io/gh/roccojanse%2Ffederico)
 [![NPM version](https://badge.fury.io/js/federico.svg)](https://www.npmjs.com/package/federico)
 [![NPM DM](https://img.shields.io/npm/dm/federico.svg)](https://www.npmjs.com/package/federico)
 [![Build Status](https://travis-ci.org/roccojanse/federico.svg)](https://travis-ci.org/roccojanse/federico) 
