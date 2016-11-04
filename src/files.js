@@ -24,6 +24,7 @@ var Files = module.exports = {
      * creates federico local config file
      * @param {object} [options] Options defined in cli program call
      * @param {boolean} options.dir True and set if defined in cli
+     * @param {boolean} options.force True if defined in cli
      */
     createConfig: function(options) {
         
@@ -35,7 +36,7 @@ var Files = module.exports = {
             dir += options.dir + '/';
         }
 
-        if (checks.isProjectRoot(dir)) {
+        if (checks.isProjectRoot(dir, options.force)) {
             fs.outputJson(dir + fileName, config, function(err) {
                 if (err) { 
                     console.error('\nError: writing file: "' + dir + fileName + '".\n\n');
@@ -56,6 +57,7 @@ var Files = module.exports = {
      * @param {boolean} options.html True if defined in cli
      * @param {boolean} options.js True if defined in cli
      * @param {boolean} options.scss True if defined in cli
+     * @param {boolean} options.force True if defined in cli
      */
     createFiles: function(type, name, options) {
 
@@ -63,7 +65,7 @@ var Files = module.exports = {
             filePath = config.paths[type] || null,
             fileCount = 0;
 
-        if (checks.isProjectRoot(Files.cwd)) {
+        if (checks.isProjectRoot(Files.cwd, options.force)) {
 
             // filepath should exist, else type is unsupported
             if (filePath !== null) {

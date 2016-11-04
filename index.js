@@ -14,6 +14,7 @@ program
 program
     .command('init')
     .description('creates federico.json config file')
+    .option("-f, --force", "Force file creation even if not in a project root")
     .option("-d, --dir <dir>", "Overrides default directory to write json to")
     .action(files.createConfig)
     .on('--help', function () {
@@ -27,6 +28,7 @@ program
 program
     .command('create <type> <name>')
     .description('create a component or element')
+    .option("-f, --force", "Force file creation even if not in a project root")
     .option("--html", "Skips html file creation")
     .option("--scss", "Skips sass file creation")
     .option("--js", "Skips javascript file creation")
