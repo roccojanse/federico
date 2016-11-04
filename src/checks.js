@@ -13,7 +13,7 @@ var Checks = module.exports = {
      * by checking the directory for a package.json file
      * @param {string} directory Directory which must contain a pacakge.json
      * @param {(boolean|undefined)} [force = false] Forces check returns true
-     * @returns {boolean} True if directory is a project root
+     * @returns {boolean} True if directory is a project root or force parameter is true
      */
     isProjectRoot: function(dir, force) {
         var ret = false;

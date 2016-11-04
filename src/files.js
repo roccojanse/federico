@@ -1,4 +1,5 @@
 var fs = require('fs-extra'),
+    username = require('username'),
     config = require(__dirname + '/config/federico'),
     checks = require(__dirname + '/checks');
 
@@ -50,6 +51,29 @@ var Files = module.exports = {
     },
 
     /**
+     * gets the file template based on extension
+     * @param {string} extension Extension to get template for
+     * @returns {string} Template
+     */
+    getTemplate: function(extension, cb) {
+
+        if (extension === 'sass') {
+            extension = 'scss';
+        }
+        
+        var tplFile = __dirname + '/tpl/' + extension + '.tpl';
+
+        fs.readFile(tplFile, 'utf8', function(err, data) {
+            if (err) { 
+                console.error('\nError: cannot read template: "' + tplFile + '".\n\n');
+            } 
+            if (typeof cb === 'function') {
+                cb(data);
+            }
+        });
+    },
+
+    /**
      * creates and writes files of requested type
      * @param {string} type Type to create (component/element)
      * @param {string} name Name
@@ -74,34 +98,52 @@ var Files = module.exports = {
                 Files.extensions.forEach(function(extension, i) {
                     var ext = extension.substr(1, extension.length);
                     if (typeof options[ext] === 'undefined') {
+                        
                         var fileName = name;
-                        if (ext === 'scss' || ext === 'sass') {
-                            fileName = '_' + name;
-                        }
-                        filesArray.push(Files.cwd + filePath + name + '/' + fileName + extension);
+
+                        Files.getTemplate(ext, function(fileTpl) {
+
+                            // replace template values
+                            var d = new Date(),
+                                months = ['January', 'February', 'March', 'April', 'May', 'June', 'July', 'August', 'September', 'October', 'November', 'December'];
+
+                            fileTpl = fileTpl.replace(/{{name}}/gi, name);
+                            fileTpl = fileTpl.replace(/{{ucfirst_name}}/gi, name.charAt(0).toUpperCase() + name.slice(1));
+                            fileTpl = fileTpl.replace(/{{author}}/gi, username.sync());
+                            fileTpl = fileTpl.replace(/{{date}}/gi, months[d.getMonth()] + ' ' + d.getFullYear());
+
+                            // alter filename for sass partials
+                            if (ext === 'scss' || ext === 'sass') {
+                                fileName = '_' + name;
+                            }
+
+                            // filepath and data
+                            fileData = {
+                                file: Files.cwd + filePath + name + '/' + fileName + extension,
+                                tpl: fileTpl
+                            };
+
+                            fs.outputFile(fileData.file, fileData.tpl, function(err) {
+                                if (err) { 
+                                    console.error('\nError writing file: "' + fileData.file + '".\n\n');
+                                }
+
+                                // set files to full access
+                                fs.chmodSync(fileData.file, '0777');
+                                
+                                // count for result
+                                fileCount++;
+
+                                if (Files.extensions.length === fileCount) {
+                                    console.log('\n' + type + ' "' + name + '" created.\n\n');
+                                }
+                            });   
+                        });  
+                    } else {
+                        fileCount++;
                     }
                 });
 
-                // do actual file writing
-                filesArray.forEach(function(file, i) {
-                    fs.outputFile(file, '/**\n * ' + name + '\n *\n */', function(err) {
-                        if (err) { 
-                            console.error('\nError writing file: "' + file + '".\n\n');
-                        }
-
-                        // chmod files to full access
-                        fs.chmodSync(file, '0777');
-                        
-                        // count for result
-                        fileCount++;
-
-                        if (filesArray.length === fileCount) {
-                            console.log('\n' + type + ' "' + name + '" created.\n\n');
-                        }
-                    });
-                });
-
-                //console.log('Files:', filesArray);
 
             } else {
                 
