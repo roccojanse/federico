@@ -7,7 +7,22 @@ var version = require('./package').version,
     files = require('./src/files');
 
 
-program.version(version);
+program
+    .version(version)
+    .usage('[command] [options]');
+
+program
+    .command('init')
+    .description('creates federico.json config file')
+    .option("-d, --dir <dir>", "Overrides default directory to write json to")
+    .action(files.createConfig)
+    .on('--help', function () {
+        console.log('  Example:');
+        console.log();
+        console.log('    $ init');
+        console.log('    $ init -d path/to/dir');
+        console.log();
+    });
 
 program
     .command('create <type> <name>')

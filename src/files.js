@@ -1,4 +1,4 @@
-var config = require('../federico'),
+var config = require('./config/federico'),
     fs = require('fs-extra');
 
 'use strict';
@@ -18,6 +18,29 @@ var Files = module.exports = {
      * @property {array} extensions Current supported extensions defined in config 
      */
     extensions: config.extensions,
+
+    /**
+     * creates federico local config file
+     * @param {object} [options] Options defined in cli program call
+     * @param {boolean} options.dir True and set if defined in cli
+     */
+    createConfig: function(options) {
+        
+        // create path
+        var dir = Files.cwd,
+            fileName = 'federico.json';
+
+        if (options.dir) {
+            dir += options.dir + '/';
+        }
+
+        fs.outputJson(dir + fileName, config, function(err) {
+            if (err) { 
+                console.error('Error writing file: "' + dir + fileName + '"');
+            } 
+            console.log('Created config file', dir + fileName);
+        });
+    },
 
     /**
      * creates and writes files of requested type
