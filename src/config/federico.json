@@ -1,0 +1,13 @@
+{
+    "extensions": [
+        ".html",
+        ".scss",
+        ".js",
+        ".gspec"
+    ],
+    "paths": {
+        "root": "Frontend/",
+        "component": "Frontend/components/",
+        "element": "Frontend/elements/"
+    }
+}
