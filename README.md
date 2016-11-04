@@ -1,5 +1,6 @@
 [![GitHub release](https://img.shields.io/github/release/roccojanse/federico.svg)](https://github.com/roccojanse/federico)
-[![Npm version]https://badge.fury.io/js/federico.svg](https://www.npmjs.com/package/federico)
+[![NPM version](https://badge.fury.io/js/federico.svg)](https://www.npmjs.com/package/federico)
+[![NPM DM](https://img.shields.io/npm/dm/federico.svg)](https://www.npmjs.com/package/federico)
 [![Build Status](https://travis-ci.org/roccojanse/federico.svg)](https://travis-ci.org/roccojanse/federico) 
 [![devDependency Status](https://david-dm.org/roccojanse/federico.svg)](https://david-dm.org/roccojanse/federico#info=devDependencies) 
 [![GitHub license](https://img.shields.io/badge/license-MIT-blue.svg)](https://raw.githubusercontent.com/roccojanse/federico/master/LICENSE)
@@ -8,24 +9,24 @@
 
 Frontend Architecture Boilerplate
 
-## Quick Start
+### Quick Start
 
 ```shell
 npm install -g federico
 ```
 
-## Documentation
+### Documentation
 
 
 
-## Demo
+### Demo
 
 None yet.
 
-## Credits
+### Credits
 
-Created by [Rocco Janse](http://roccojanse.nl).
+Created by [Rocco Janse](http://roccojanse.nl), [roccojanse@outlook.com](mailto:roccojanse@outloo.com)
 
-## License
+### License
 
 [The MIT License (MIT)](http://opensource.org/licenses/mit-license.php)
