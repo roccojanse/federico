@@ -1,10 +1,18 @@
 #!/usr/bin/env node
 
+'use strict';
+
 var version = require('./package').version,
     program = require('commander');
 
 /**
  * creates files
+ * @param {string} type Type of object to create (component/element)
+ * @param {string} name Name of new object
+ * @param {object} options Options defined in cli program call
+ * @param {boolean} options.html True if defined in cli
+ * @param {boolean} options.js True if defined in cli
+ * @param {boolean} options.sass True if defined in cli
  */
 function create(type, name, options) {
     console.log('create %s "%s"', type, name, options.html, options.js, options.sass);
