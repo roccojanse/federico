@@ -6,8 +6,8 @@
         ".gspec"
     ],
     "paths": {
-        "root": "./Frontend/",
-        "component": "./Frontend/components/",
-        "element": "./Frontend/elements/"
+        "root": "Frontend/",
+        "component": "Frontend/components/",
+        "element": "Frontend/elements/"
     }
 }

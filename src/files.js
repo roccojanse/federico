@@ -8,6 +8,11 @@ var config = require('../federico'),
  * @module federico/files
  */
 var Files = module.exports = {
+    
+    /** 
+     * @property {string} cwd Current working directory
+     */
+    cwd: process.cwd() + '/',
 
     /** 
      * @property {array} extensions Current supported extensions defined in config 
@@ -25,11 +30,9 @@ var Files = module.exports = {
      */
     createFiles: function(type, name, options) {
 
-        console.log('DIR:', __dirname);
-
-
         var filesArray = [],
-            filePath = config.paths[type] || null;
+            filePath = config.paths[type] || null,
+            fileCount = 0;
 
         // filepath should exist, else type is unsupported
         if (filePath !== null) {
@@ -42,12 +45,30 @@ var Files = module.exports = {
                     if (ext === 'scss' || ext === 'sass') {
                         fileName = '_' + name;
                     }
-                    filesArray.push(filePath + name + '/' + fileName + extension);
+                    filesArray.push(Files.cwd + filePath + name + '/' + fileName + extension);
                 }
             });
 
-            
-            console.log('Files:', filesArray);
+            // do actual file writing
+            filesArray.forEach(function(file, i) {
+                fs.outputFile(file, '/**\n * ' + name + '\n *\n */', function(err) {
+                    if (err) { 
+                        console.error('Error writing file: "' + file + '"');
+                    }
+
+                    // chmod files to full access
+                    fs.chmodSync(file, '0777');
+                    
+                    // count for result
+                    fileCount++;
+
+                    if (filesArray.length === fileCount) {
+                        console.log(type + ' "' + name + '" created.');
+                    }
+                });
+            });
+
+            //console.log('Files:', filesArray);
 
         } else {
             
@@ -56,7 +77,7 @@ var Files = module.exports = {
         }
 
 
-        console.log('create %s "%s"', type, name, options.html, options.js, options.scss);
+        //console.log('create %s "%s"', type, name, options.html, options.js, options.scss);
         // console.log(config.paths, Files.extensions);
     }
 
