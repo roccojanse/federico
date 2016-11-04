@@ -1,4 +1,4 @@
-var config = require('./config/federico'),
+var config = require(__dirname + '/config/federico'),
     fs = require('fs-extra');
 
 'use strict';
