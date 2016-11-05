@@ -1,7 +1,12 @@
 var fs = require('fs-extra'),
     username = require('username'),
+    readline = require('readline'),
     config = require(__dirname + '/config/federico'),
-    checks = require(__dirname + '/checks');
+    checks = require(__dirname + '/checks'),
+
+    rl = readline.createInterface(process.stdin, process.stdout), 
+    
+    localDirName = '.federico';
 
 'use strict';
 
@@ -31,21 +36,25 @@ var Files = module.exports = {
         
         // create path
         var dir = Files.cwd,
-            fileName = 'federico.json';
+            fileName = 'config.json';
 
         if (options.dir) {
             dir += options.dir + '/';
         }
 
         if (checks.isProjectRoot(dir, options.force)) {
-            fs.outputJson(dir + fileName, config, function(err) {
+            var filePath = dir + config.paths.root + localDirName + '/';
+            fs.outputJson(filePath + fileName, config, function(err) {
                 if (err) { 
-                    console.error('\nError: writing file: "' + dir + fileName + '".\n\n');
+                    console.error('\nError: writing file: "' + filePath + fileName + '".\n\n');
+                    process.exit(1);
                 } 
                 console.log('\nCreated config file.\n\n');
+                process.exit();
             });
         } else {
             console.error('\nError: no package.json found. "' + dir + '" is not a project root.\n\n');
+            process.exit(1);
         }
 
     },
@@ -60,12 +69,23 @@ var Files = module.exports = {
         if (extension === 'sass') {
             extension = 'scss';
         }
-        
+
+        // get tplFile
         var tplFile = __dirname + '/tpl/' + extension + '.tpl';
+        if (fs.existsSync(Files.cwd + '/' + localDirName + '/tpl/' + extension + '.tpl')) {
+            tplFile = Files.cwd + '/' + localDirName + '/tpl/' + extension + '.tpl';
+        } else {
+            if (checks.isProjectRoot(Files.cwd)) {
+                console.log('No custom templates found. Using default template for .' + extension + ' file.');
+            } else {
+                console.log('Not running from a project root. Using default template for .' + extension + ' file.');
+            }
+        }
 
         fs.readFile(tplFile, 'utf8', function(err, data) {
             if (err) { 
                 console.error('\nError: cannot read template: "' + tplFile + '".\n\n');
+                process.exit(1);
             } 
             if (typeof cb === 'function') {
                 cb(data);
@@ -85,7 +105,7 @@ var Files = module.exports = {
      */
     createFiles: function(type, name, options) {
 
-        var filesArray = [],
+        var fileArray = [],
             filePath = config.paths[type] || null,
             fileCount = 0;
 
@@ -101,49 +121,30 @@ var Files = module.exports = {
                         
                         var fileName = name;
 
-                        Files.getTemplate(ext, function(fileTpl) {
+                        // alter filename for sass partials
+                        if (ext === 'scss' || ext === 'sass') {
+                            fileName = '_' + name;
+                        }
 
-                            // replace template values
-                            var d = new Date(),
-                                months = ['January', 'February', 'March', 'April', 'May', 'June', 'July', 'August', 'September', 'October', 'November', 'December'];
-
-                            fileTpl = fileTpl.replace(/{{name}}/gi, name);
-                            fileTpl = fileTpl.replace(/{{ucfirst_name}}/gi, name.charAt(0).toUpperCase() + name.slice(1));
-                            fileTpl = fileTpl.replace(/{{author}}/gi, username.sync());
-                            fileTpl = fileTpl.replace(/{{date}}/gi, months[d.getMonth()] + ' ' + d.getFullYear());
-
-                            // alter filename for sass partials
-                            if (ext === 'scss' || ext === 'sass') {
-                                fileName = '_' + name;
-                            }
-
-                            // filepath and data
-                            fileData = {
-                                file: Files.cwd + filePath + name + '/' + fileName + extension,
-                                tpl: fileTpl
-                            };
-
-                            fs.outputFile(fileData.file, fileData.tpl, function(err) {
-                                if (err) { 
-                                    console.error('\nError writing file: "' + fileData.file + '".\n\n');
-                                }
-
-                                // set files to full access
-                                fs.chmodSync(fileData.file, '0777');
-                                
-                                // count for result
-                                fileCount++;
-
-                                if (Files.extensions.length === fileCount) {
-                                    console.log('\n' + type + ' "' + name + '" created.\n\n');
-                                }
-                            });   
-                        });  
-                    } else {
-                        fileCount++;
+                        fileArray.push({
+                            type: type,
+                            name: name,
+                            ext: ext, 
+                            file: Files.cwd + filePath + name + '/' + fileName + extension 
+                        });
+                    
                     }
                 });
 
+                if (fileArray.length > 0) {
+                    
+                    // write all files in fileArray
+                    Files.getTplAndWriteFile(fileArray, 0, function() {
+                        console.log('\n' + type + ' "' + name + '" created.\n\n');
+                        process.exit();
+                    });
+
+                }
 
             } else {
                 
@@ -153,10 +154,133 @@ var Files = module.exports = {
 
         } else {
             console.error('\nError: no package.json found. "' + Files.cwd + '" is not a project root.\n\n');   
+            process.exit(1);
         }
+    },
 
-        //console.log('create %s "%s"', type, name, options.html, options.js, options.scss);
-        // console.log(config.paths, Files.extensions);
+    /**
+     * wrapper to check file existance and prompts user to overwrite or skip file creation
+     * calls itself recursive untill all items from fileArray are processed
+     * @param {array} fileArray Array of files to check and write
+     * @param {integer} i Array index to process
+     * @param {function} [cb] Callback function, called when all items of the array are processed
+     */
+    getTplAndWriteFile: function(fileArray, i, cb) {
+
+        var error;
+
+        // file already exists?
+        if (fs.existsSync(fileArray[i].file)) {
+
+            console.log(fileArray[i].file + ' already exists.');
+            
+            rl.question("Overwrite? [yes]/no: ", function(answer) {
+                if (answer.match(/^y(es)?$/i)) {
+                    
+                    // overwrite
+                    Files.writeFile(fileArray[i], function(err) {
+                        if (err) {
+                            console.error('\nError writing file: "' + fileArray[i].file + '".');   
+                        }
+
+                        i++;
+            
+                        if (i < fileArray.length) {
+                            Files.getTplAndWriteFile(fileArray, i, cb);
+                        } 
+
+                        if (i === fileArray.length) {
+                            if (typeof cb === 'function') {
+                                cb();
+                            }
+                        }
+                    });
+                } else {
+
+                    // skip
+                    i++;
+        
+                    if (i < fileArray.length) {
+                        Files.getTplAndWriteFile(fileArray, i, cb);
+                    } 
+
+                    if (i === fileArray.length) {
+                        if (typeof cb === 'function') {
+                            cb();
+                        }
+                    }
+                }
+
+            });
+
+        } else {
+
+            // write file
+            Files.writeFile(fileArray[i], function(err) {
+                if (err) {
+                    console.error('\nError writing file: "' + fileArray[i].file + '".');   
+                }
+
+                i++;
+    
+                if (i < fileArray.length) {
+                    Files.getTplAndWriteFile(fileArray, i, cb);
+                } 
+
+                if (i === fileArray.length) {
+                    if (typeof cb === 'function') {
+                        cb();
+                    }
+                }
+            });
+        }
+    },
+
+    /**
+     * writes files based on fetched templates
+     * @param {object} fileData Object containing filedata
+     * @param {function} [cb] Callback function, called when all items of the array are processed
+     */
+    writeFile: function(fileData, cb) {
+
+        var name = fileData.name,
+            ext = fileData.ext;
+
+        Files.getTemplate(ext, function(fileTpl) {
+
+            // replace template values
+            var d = new Date(),
+                months = ['january', 'february', 'march', 'april', 'may', 'june', 'july', 'august', 'september', 'october', 'november', 'december'];
+
+            fileTpl = fileTpl.replace(/{{name}}/gi, name);
+            fileTpl = fileTpl.replace(/{{ucfirst_name}}/gi, name.charAt(0).toUpperCase() + name.slice(1));
+            fileTpl = fileTpl.replace(/{{author}}/gi, username.sync());
+            fileTpl = fileTpl.replace(/{{date}}/gi, months[d.getMonth()] + ' ' + d.getFullYear());
+
+            fileData.tpl = fileTpl;
+
+            // write file
+            fs.outputFile(fileData.file, fileData.tpl, function(err) {
+
+                if (typeof cb === 'function') {
+                    if (err) {  
+                        cb(err);
+                    } else {
+                        // set files to full access
+                        fs.chmodSync(fileData.file, '0777');
+                        cb();
+                    }
+                } else {
+                    if (err) { 
+                        console.error('\nError writing file: "' + fileData.file + '".\n\n');
+                        process.exit(1);
+                    }
+
+                    // set files to full access
+                    fs.chmodSync(fileData.file, '0777');
+                }
+            }); 
+        });  
     }
 
 };
