@@ -32,6 +32,7 @@ program
     .option("--html", "Skips html file creation")
     .option("--scss", "Skips sass file creation")
     .option("--js", "Skips javascript file creation")
+    .option("--gspec", "Skips test file creation")
     .action(files.createFiles)
     .on('--help', function () {
         console.log('  Examples:');

@@ -8,7 +8,7 @@
 
 # Federico
 
-Frontend Architecture Boilerplate
+Frontend Architecture Helper tools
 
 ### Quick Start
 
@@ -18,7 +18,15 @@ npm install -g federico
 
 ### Documentation
 
-
+To create a local config:
+```shell
+federico init
+```
+To create a component or element:
+```shell
+federico create component <name> [--html, --scss, --js, --gspec]
+federico create elelement <name> [--html, --scss, --js, --gspec]
+```
 
 ### Demo
 
