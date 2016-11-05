@@ -44,14 +44,40 @@ var Files = module.exports = {
 
         if (checks.isProjectRoot(dir, options.force)) {
             var filePath = dir + config.paths.root + localDirName + '/';
-            fs.outputJson(filePath + fileName, config, function(err) {
-                if (err) { 
-                    console.error('\nError: writing file: "' + filePath + fileName + '".\n\n');
-                    process.exit(1);
-                } 
-                console.log('\nCreated config file.\n\n');
-                process.exit();
-            });
+
+            // file already exists?
+            if (fs.existsSync(filePath + fileName)) {
+
+                console.log('Config already exists.');
+                
+                rl.question("Overwrite? [yes]/no: ", function(answer) {
+                    if (answer.match(/^y(es)?$/i)) {
+                        fs.outputJson(filePath + fileName, config, function(err) {
+                            if (err) { 
+                                console.error('\nError: writing file: "' + filePath + fileName + '".\n\n');
+                                process.exit(1);
+                            } 
+                            console.log('\nCreated config file.\n\n');
+                            process.exit();
+                        });
+                    } else {
+                        console.log('\nSkipped creating config file.\n\n');
+                        process.exit();                       
+                    }
+                });
+
+            } else {
+                // file does not exist, create
+                fs.outputJson(filePath + fileName, config, function(err) {
+                    if (err) { 
+                        console.error('\nError: writing file: "' + filePath + fileName + '".\n\n');
+                        process.exit(1);
+                    } 
+                    console.log('\nCreated config file.\n\n');
+                    process.exit();
+                });
+            }
+
         } else {
             console.error('\nError: no package.json found. "' + dir + '" is not a project root.\n\n');
             process.exit(1);
@@ -166,8 +192,6 @@ var Files = module.exports = {
      * @param {function} [cb] Callback function, called when all items of the array are processed
      */
     getTplAndWriteFile: function(fileArray, i, cb) {
-
-        var error;
 
         // file already exists?
         if (fs.existsSync(fileArray[i].file)) {
