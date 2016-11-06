@@ -1,7 +1,7 @@
 var fs = require('fs-extra'),
     username = require('username'),
     readline = require('readline'),
-    config = require(__dirname + '/config/federico'),
+    config = require(__dirname + '/config/config'),
     checks = require(__dirname + '/checks'),
 
     rl = readline.createInterface(process.stdin, process.stdout), 
@@ -27,12 +27,25 @@ var Files = module.exports = {
     extensions: config.extensions,
 
     /**
-     * creates federico local config file
+     * initializes local config creation
      * @param {object} [options] Options defined in cli program call
      * @param {boolean} options.dir True and set if defined in cli
      * @param {boolean} options.force True if defined in cli
      */
-    createConfig: function(options) {
+    initConfig: function(options) {
+        Files.createConfig(options, function() {
+            Files.copyTemplateFilesToLocal();
+        });
+    },
+
+    /**
+     * creates federico local config file
+     * @param {object} [options] Options defined in cli program call
+     * @param {boolean} options.dir True and set if defined in cli
+     * @param {boolean} options.force True if defined in cli
+     * @param {function} [cb] callback function
+     */
+    createConfig: function(options, cb) {
         
         // create path
         var dir = Files.cwd,
@@ -58,11 +71,20 @@ var Files = module.exports = {
                                 process.exit(1);
                             } 
                             console.log('\nCreated config file.\n\n');
-                            process.exit();
+                            
+                            if (typeof cb === 'function') {
+                                cb();
+                            } else {
+                                process.exit();
+                            }
                         });
                     } else {
                         console.log('\nSkipped creating config file.\n\n');
-                        process.exit();                       
+                        if (typeof cb === 'function') {
+                            cb();
+                        } else {
+                            process.exit();
+                        }                       
                     }
                 });
 
@@ -74,7 +96,11 @@ var Files = module.exports = {
                         process.exit(1);
                     } 
                     console.log('\nCreated config file.\n\n');
-                    process.exit();
+                    if (typeof cb === 'function') {
+                        cb();
+                    } else {
+                        process.exit();
+                    }
                 });
             }
 
@@ -83,6 +109,50 @@ var Files = module.exports = {
             process.exit(1);
         }
 
+    },
+
+    /**
+     * copies templates files to local project, to enable customization of components and elements
+     * default source code
+     */
+    copyTemplateFilesToLocal: function() {
+        fs.readdir(Files.cwd + config.paths.root + localDirName + '/tpl', function(err, files) {
+            if (err) {
+                if (err.code === 'ENOENT') {
+                    // no such dir; copy
+                    fs.copy(__dirname + '/tpl', Files.cwd + config.paths.root + localDirName + '/tpl', function(err) {
+                        if (err) {
+                            console.log(err.error + '\n\n');
+                            process.exit(1);
+                        }
+                        console.log('\nCreated config templates.\n\n');
+                        process.exit();
+                    });
+                } else {
+                    console.log(err.error + '\n\n');
+                    process.exit(1);
+                }
+            } else {
+                // dir exists
+                console.log('Local templates directory already exists. All changes will be lost!');
+                
+                rl.question("Continue? [yes]/no: ", function(answer) {
+                    if (answer.match(/^y(es)?$/i)) {
+                        fs.copy(__dirname + '/tpl', Files.cwd + config.paths.root + localDirName + '/tpl', function(err) {
+                            if (err) {
+                                console.log(err.error + '\n\n');
+                                process.exit(1);
+                            }
+                            console.log('\nCreated config templates.\n\n');
+                            process.exit();
+                        });
+                    } else {
+                        console.log('\nSkipped creating local templates.\n\n');
+                        process.exit();
+                    }
+                });
+            }
+        });
     },
 
     /**
@@ -98,8 +168,8 @@ var Files = module.exports = {
 
         // get tplFile
         var tplFile = __dirname + '/tpl/' + extension + '.tpl';
-        if (fs.existsSync(Files.cwd + '/' + localDirName + '/tpl/' + extension + '.tpl')) {
-            tplFile = Files.cwd + '/' + localDirName + '/tpl/' + extension + '.tpl';
+        if (fs.existsSync(Files.cwd + config.paths.root + localDirName + '/tpl/' + extension + '.tpl')) {
+            tplFile = Files.cwd + config.paths.root + localDirName + '/tpl/' + extension + '.tpl';
         } else {
             if (checks.isProjectRoot(Files.cwd)) {
                 console.log('No custom templates found. Using default template for .' + extension + ' file.');
@@ -306,5 +376,4 @@ var Files = module.exports = {
             }); 
         });  
     }
-
 };

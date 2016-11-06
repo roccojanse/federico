@@ -16,7 +16,7 @@ program
     .description('creates federico.json config file')
     .option("-f, --force", "Force file creation even if not in a project root")
     .option("-d, --dir <dir>", "Overrides default directory to write json to")
-    .action(files.createConfig)
+    .action(files.initConfig)
     .on('--help', function () {
         console.log('  Example:');
         console.log();
