@@ -25,7 +25,7 @@ federico init
 To create a component or element:
 ```shell
 federico create component <name> [--html, --scss, --js, --gspec]
-federico create elelement <name> [--html, --scss, --js, --gspec]
+federico create element <name> [--html, --scss, --js, --gspec]
 ```
 
 ### Demo
